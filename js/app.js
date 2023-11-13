@@ -25,6 +25,10 @@ class Presupuesto {
         const gastado = this.gastos.reduce((total, gasto) => total + gasto.cantidad, 0)
         this.restante = this.presupuesto - gastado;
     }
+    eliminarGasto(id){
+        this.gastos = this.gastos.filter((gasto)=> gasto.id !== id)
+        this.calcularRestante();
+    }
 }
 
 class UI {
@@ -67,7 +71,10 @@ class UI {
             // Agregar boton para borrar
             const btn_borrar = document.createElement('button');
             btn_borrar.classList.add('btn', 'btn-danger', 'borrar-gasto');
-            btn_borrar.textContent = 'borrar'
+            btn_borrar.textContent = 'borrar';
+            btn_borrar.onclick = () => {
+                eliminarGasto(id)
+            }
             nuevoGasto.appendChild(btn_borrar);
 
             // agregar al HTML
@@ -87,11 +94,14 @@ class UI {
         const restanteAlert = document.querySelector('.restante');
         // comprobar 25%
         if((presupuesto / 4) > restante){
-            restanteAlert.classList.remove('alert-success', 'alert-warning')
-            restanteAlert.classList.add('alert-danger')
+            restanteAlert.classList.remove('alert-success', 'alert-warning');
+            restanteAlert.classList.add('alert-danger');
         }else if((presupuesto / 2) > restante){
-            restanteAlert.classList.remove('alert-success')
-            restanteAlert.classList.add('alert-warning')
+            restanteAlert.classList.remove('alert-success');
+            restanteAlert.classList.add('alert-warning');
+        }else{
+            restanteAlert.classList.remove('alert-danger', 'alert-warning');
+            restanteAlert.classList.add('alert-success');
         }
         // si el restante es menor a 0 mostrar error
         if(restante <= 0){
@@ -146,4 +156,11 @@ function agregarGasto(e) {
 
     // limpiamos el formulario
     formulario.reset();
+}
+function eliminarGasto(id){
+    presupuesto.eliminarGasto(id);
+    const {gastos, restante} = presupuesto;
+    ui.agregarGastoListado(gastos)
+    ui.actualizarRestante(restante);
+    ui.comprobarRestante(presupuesto);
 }
