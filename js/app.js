@@ -82,6 +82,23 @@ class UI {
     actualizarRestante(restante) {
         document.querySelector('#restante').textContent = restante;
     }
+    comprobarRestante(presupuestoObj) {
+        const { presupuesto, restante } = presupuestoObj;
+        const restanteAlert = document.querySelector('.restante');
+        // comprobar 25%
+        if((presupuesto / 4) > restante){
+            restanteAlert.classList.remove('alert-success', 'alert-warning')
+            restanteAlert.classList.add('alert-danger')
+        }else if((presupuesto / 2) > restante){
+            restanteAlert.classList.remove('alert-success')
+            restanteAlert.classList.add('alert-warning')
+        }
+        // si el restante es menor a 0 mostrar error
+        if(restante <= 0){
+            ui.mostrarAlerta('El presupuesto se ha agotado', 'error');
+            formulario.querySelector('button[type="submit"]').disabled = true;
+        }
+    }
 }
 
 const ui = new UI();
@@ -105,7 +122,7 @@ function agregarGasto(e) {
     const cantidad = Number(document.querySelector('#cantidad').value);
 
     if (nombre === '' || cantidad === '') {
-        ui.mostrarAlerta('Ambos campos osn obligatorios', 'error');
+        ui.mostrarAlerta('Ambos campos son obligatorios', 'error');
         return;
     } else if (cantidad <= 0 || isNaN(cantidad)) {
         ui.mostrarAlerta('Ingrese una cantidad valida', 'error');
@@ -122,6 +139,8 @@ function agregarGasto(e) {
     ui.agregarGastoListado(gastos);
     // actualizar restante
     ui.actualizarRestante(restante);
+    // modificar la alerta 
+    ui.comprobarRestante(presupuesto);
     // mostramos la alerta de tofdo bien
     ui.mostrarAlerta('Gasto agregado correctamente');
 
