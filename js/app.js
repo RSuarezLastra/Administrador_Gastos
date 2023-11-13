@@ -17,9 +17,13 @@ class Presupuesto {
         this.restante = Number(presupuesto);
         this.gastos = []
     }
-    nuevoGasto(gasto){
+    nuevoGasto(gasto) {
         this.gastos = [...this.gastos, gasto];
-        console.log(this.gastos);
+        this.calcularRestante();
+    }
+    calcularRestante() {
+        const gastado = this.gastos.reduce((total, gasto) => total + gasto.cantidad, 0)
+        this.restante = this.presupuesto - gastado;
     }
 }
 
@@ -31,13 +35,13 @@ class UI {
         document.querySelector('#total').textContent = presupuesto;
         document.querySelector('#restante').textContent = restante;
     }
-    mostrarAlerta(mensaje, tipo){
+    mostrarAlerta(mensaje, tipo) {
         // creando el div del mensaje
         const divAlert = document.createElement('DIV');
         divAlert.classList.add('text-center', 'alert');
-        if(tipo === 'error'){
+        if (tipo === 'error') {
             divAlert.classList.add('alert-danger');
-        }else{
+        } else {
             divAlert.classList.add('alert-success');
         }
         divAlert.textContent = mensaje;
@@ -47,11 +51,11 @@ class UI {
             divAlert.remove();
         }, 3000);
     }
-    agregarGastoListado(gastos){
+    agregarGastoListado(gastos) {
         this.limpiarHtml();
         // iterar sobre el arreglo gastos
         gastos.forEach(gasto => {
-            const {nombre , cantidad, id} = gasto;
+            const { nombre, cantidad, id } = gasto;
             // crar un LI
             const nuevoGasto = document.createElement('li');
             nuevoGasto.classList = 'list-group-item d-flex justify-content-between align-items-center';
@@ -70,10 +74,13 @@ class UI {
             gastoListado.appendChild(nuevoGasto);
         });
     }
-    limpiarHtml(){
-        while(gastoListado.firstChild){
+    limpiarHtml() {
+        while (gastoListado.firstChild) {
             gastoListado.removeChild(gastoListado.firstChild);
         }
+    }
+    actualizarRestante(restante) {
+        document.querySelector('#restante').textContent = restante;
     }
 }
 
@@ -97,23 +104,24 @@ function agregarGasto(e) {
     const nombre = document.querySelector('#gasto').value;
     const cantidad = Number(document.querySelector('#cantidad').value);
 
-    if (nombre === '' || cantidad === ''){
+    if (nombre === '' || cantidad === '') {
         ui.mostrarAlerta('Ambos campos osn obligatorios', 'error');
         return;
-    }else if(cantidad <= 0 || isNaN(cantidad)){
+    } else if (cantidad <= 0 || isNaN(cantidad)) {
         ui.mostrarAlerta('Ingrese una cantidad valida', 'error');
         return;
     }
     // Guardamos el nombre y la cantidad del gasto en objeto
-    const gasto = {nombre, cantidad, id: Date.now()};
+    const gasto = { nombre, cantidad, id: Date.now() };
 
     // agregamos el nuevo gasto
     presupuesto.nuevoGasto(gasto);
 
     // imprimir el gasto
-    const {gastos} = presupuesto;
+    const { gastos, restante } = presupuesto;
     ui.agregarGastoListado(gastos);
-
+    // actualizar restante
+    ui.actualizarRestante(restante);
     // mostramos la alerta de tofdo bien
     ui.mostrarAlerta('Gasto agregado correctamente');
 
