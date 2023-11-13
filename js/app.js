@@ -10,13 +10,16 @@ function eventListenners() {
     formulario.addEventListener('submit', agregarGasto)
 }
 
-
 // clases
 class Presupuesto {
     constructor(presupuesto, restante, gastos) {
         this.presupuesto = Number(presupuesto);
         this.restante = Number(presupuesto);
         this.gastos = []
+    }
+    nuevoGasto(gasto){
+        this.gastos = [...this.gastos, gasto];
+        console.log(this.gastos);
     }
 }
 
@@ -44,6 +47,34 @@ class UI {
             divAlert.remove();
         }, 3000);
     }
+    agregarGastoListado(gastos){
+        this.limpiarHtml();
+        // iterar sobre el arreglo gastos
+        gastos.forEach(gasto => {
+            const {nombre , cantidad, id} = gasto;
+            // crar un LI
+            const nuevoGasto = document.createElement('li');
+            nuevoGasto.classList = 'list-group-item d-flex justify-content-between align-items-center';
+            nuevoGasto.dataset.id = id;
+
+            // Agregar HTML al gasto
+            nuevoGasto.innerHTML = `${nombre} <span class='badge badge-primary badge-pill'> ${cantidad} </span>`;
+
+            // Agregar boton para borrar
+            const btn_borrar = document.createElement('button');
+            btn_borrar.classList.add('btn', 'btn-danger', 'borrar-gasto');
+            btn_borrar.textContent = 'borrar'
+            nuevoGasto.appendChild(btn_borrar);
+
+            // agregar al HTML
+            gastoListado.appendChild(nuevoGasto);
+        });
+    }
+    limpiarHtml(){
+        while(gastoListado.firstChild){
+            gastoListado.removeChild(gastoListado.firstChild);
+        }
+    }
 }
 
 const ui = new UI();
@@ -64,7 +95,7 @@ function agregarGasto(e) {
     e.preventDefault();
 
     const nombre = document.querySelector('#gasto').value;
-    const cantidad = document.querySelector('#cantidad').value;
+    const cantidad = Number(document.querySelector('#cantidad').value);
 
     if (nombre === '' || cantidad === ''){
         ui.mostrarAlerta('Ambos campos osn obligatorios', 'error');
@@ -73,5 +104,19 @@ function agregarGasto(e) {
         ui.mostrarAlerta('Ingrese una cantidad valida', 'error');
         return;
     }
-    ui.mostrarAlerta('Agregando gasto', 'success');
+    // Guardamos el nombre y la cantidad del gasto en objeto
+    const gasto = {nombre, cantidad, id: Date.now()};
+
+    // agregamos el nuevo gasto
+    presupuesto.nuevoGasto(gasto);
+
+    // imprimir el gasto
+    const {gastos} = presupuesto;
+    ui.agregarGastoListado(gastos);
+
+    // mostramos la alerta de tofdo bien
+    ui.mostrarAlerta('Gasto agregado correctamente');
+
+    // limpiamos el formulario
+    formulario.reset();
 }
